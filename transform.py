@@ -15,7 +15,7 @@ class Face(object):
 		format_string = """\tfacet normal {n.x} {n.y} {n.z}\n\t\touter loop\n{verts}\t\tendloop\n\t\tendfacet\n"""
 		verts = "".join("\t\t\tvertex {v.x} {v.y} {v.z}\n".format(v=vertex) for vertex in self.vertices)
 		return format_string.format(n = self.normal, verts = verts)
-	def transformed(self, f):
+	def transformed(self, f, depth = 0):
 		"return a list of the new faces that this face got transfo into"
 		split_distance = 0.5
 		new_verts = map(f, self.vertices)
@@ -29,9 +29,9 @@ class Face(object):
 		midpoint = (v0 + v1) / 2
 		old_midpoint = (g0 + g1) / 2
 		new_midpoint = f(old_midpoint)
-		if abs(midpoint - new_midpoint) > split_distance:
-			faces1 = Face(vertices = (g2, g0, old_midpoint)).transformed(f)
-			faces2 = Face(vertices = (g2, old_midpoint, g1)).transformed(f)
+		if abs(midpoint - new_midpoint) > split_distance and depth < 50:
+			faces1 = Face(vertices = (g2, g0, old_midpoint)).transformed(f, depth+1)
+			faces2 = Face(vertices = (g2, old_midpoint, g1)).transformed(f,depth +1)
 			faces1.extend(faces2)
 			return faces1
 		return [Face(new_verts)]
@@ -83,6 +83,11 @@ def spherical_projection(r, n, t = Vector3(0,0,0), blend = 1.0):
 	new_r = r * mu
 	return (new_r * blend) + r * (1.0 - blend)
 
+def sphere_inverstion(r,radius, t):
+	r -= t
+	mag = r.magnitude()
+	if mag - radius == 0: return 0 * r
+	return r.normalized() / (mag)
 
 def read_stl(filename):
 	with open(filename) as f:
@@ -97,21 +102,23 @@ def oscillate(t):
 def identity(r): return r
 if __name__ == '__main__':
 	from subprocess import call
-	stl = read_stl("torus.stl")
-	directory = "pics/" + "torus"
+	stl_name = "torus"
+	stl = read_stl("stls/{}.stl".format(stl_name))
+	directory = "pics/" + stl_name
 	call(["mkdir", directory])
 	call(["cd", directory])
 	files = []
-	steps = 20
-	time = 5.0
+	steps = 40
+	time = 7.0
 	for i in range(steps):
 		j = oscillate(i/steps)
 		n = Vector3(-1,1,0).normalized()
 		def spherical(r): return spherical_projection(r, n, blend = j)
+		def inversion(r): return sphere_inverstion(r, 1, Vector3(0,j*2,0))
 		f_name = "{directory}/solid {i}.stl".format(**locals())
 		files.append("{directory}/solid{i}.png".format(**locals()))
 		f = open(f_name, "w")
-		new_stl = stl.transformed(spherical)
+		new_stl = stl.transformed(inversion)
 		f.write(str(new_stl))
 		call(["openscad", "-o", "{directory}/solid{i}.png".format(**vars()),"-D",  'model="{directory}/solid {i}.stl";'.format(**vars()),"veiw.scad"])
 	call(["convert", "-delay", str(time/steps*100), "-loop", "0"] + files + ["{directory}/animation.gif".format(**vars())])		
