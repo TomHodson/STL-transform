@@ -89,6 +89,11 @@ def sphere_inverstion(r,radius, t):
 	if mag - radius == 0: return 0 * r
 	return r.normalized() / (mag)
 
+def blend(f, t):
+	def _f(x):
+		return f(x) * t + x * (1.0-t)
+	return _f
+
 def read_stl(filename):
 	with open(filename) as f:
 		stl = f.read().split()[::-1]
@@ -113,12 +118,12 @@ if __name__ == '__main__':
 	for i in range(steps):
 		j = oscillate(i/steps)
 		n = Vector3(-1,1,0).normalized()
-		def spherical(r): return spherical_projection(r, n, blend = j)
-		def inversion(r): return sphere_inverstion(r, 1, Vector3(0,j*2,0))
+		def spherical(r): return spherical_projection(r, n, blend = j*2)
+		def inversion(r): return sphere_inverstion(r, 0, Vector3(0,2,0))
 		f_name = "{directory}/solid {i}.stl".format(**locals())
 		files.append("{directory}/solid{i}.png".format(**locals()))
 		f = open(f_name, "w")
-		new_stl = stl.transformed(inversion)
+		new_stl = stl.transformed(blend(inversion, j))
 		f.write(str(new_stl))
 		call(["openscad", "-o", "{directory}/solid{i}.png".format(**vars()),"-D",  'model="{directory}/solid {i}.stl";'.format(**vars()),"veiw.scad"])
 	call(["convert", "-delay", str(time/steps*100), "-loop", "0"] + files + ["{directory}/animation.gif".format(**vars())])		
