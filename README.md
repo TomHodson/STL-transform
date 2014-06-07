@@ -22,10 +22,18 @@ def f(x,y,z): return cos(x) + cos(y) + cos(z)
 
 This is heavily related to the idea of distance fields, so have a look at
 	http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+
 You can also do intersections, unions, etc and even 'smooth' unions:
-![The union of a cube and a sphere](pics/7.png?raw=true "min(cube, sphere)")
-![The smooth union of a cube and a sphere](pics/6.png?raw=true "smooth_min(cube, sphere)")
+min(cube, sphere)
+![The union of a cube and a sphere](pics/6.png?raw=true "min(cube, sphere)")
+smin(cube, sphere)
+![The smooth union of a cube and a sphere](pics/7.png?raw=true "smooth_min(cube, sphere)")
 
 Transform.py
 -------------
 A bit of hacked together code to read in ASCII STL files and then some routines to transform the faces based on an arbitrary function, it splits the facets if they're very distorted.
+for instance under the a mapping I was playing with that turns parrell lines into radial lines
+a cube
+![cube](pics/cube.png?raw=true "cube")
+becomes a section of a sphere
+![cube](pics/transformed_cube.png?raw=true "cube")
