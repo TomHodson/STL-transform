@@ -1,6 +1,8 @@
+from __future__ import division
 from math import cos,exp,atan2,sin
 from marching import isosurface
 from vectormath import *
+from euclid import Vector3
   
 def lobes(x,y,z):  
  try:  
@@ -24,7 +26,10 @@ def smin(x,y):
   return log(exp(-x) + exp(-y))
 def clamp(val, c):
   return 0 if abs(val) < c else val
-
+def sclamp(x, c):
+  return x*(abs(x) + c) / abs(x)
+def gyroid(r):
+  return sum(map(cos, r))
 def sphere(p,r):
   return mag(p) - r
 def cubisphere(p,r):
@@ -40,15 +45,20 @@ def line(p):
   a = p
   b = Vector(1,2,3)
   return 0
+def orthocircle(r):
+  r = r /8
+  x,y,z = r.x,r.y,r.z
+  ff = 0.075
+  bb = 3.0
+  return ((x**2 + y**2 - 1)**2 + z**2)*((y**2 + z**2 - 1)**2 + x**2)*((z**2 + x**2 - 1)**2 + y**2) - ff**2*(1 + bb*(x**2 + y**2 + z**2)) 
 
 def func(x,y,z):
-  p = Vector(x,y,z)
-  b = sphere(p, 10.0)
-  try:
-    a = 1.0/x + 1.0/y + 1.0/z
-    return max(a,b)
-  except:
-    return 1000
+  r = Vector3(x,y,z)
+  s = sphere(r, 5)
+  g = gyroid(r)
+  return orthocircle(r)
 
 if __name__ == '__main__':
+  from subprocess import call
   isosurface(func)
+  call(["openscad", "-o", "out.png","-D",  'model="out.stl";',"veiw.scad"])

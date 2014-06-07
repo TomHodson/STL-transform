@@ -1,7 +1,5 @@
-STL-transform
+STL-transforms
 =============
-
-Python code to subject STL files to an arbitrary transformation of 3d space.
 
 Isosurface.py and Marching.py
 --------------
@@ -35,7 +33,7 @@ smin(cube, sphere)
 Transform.py
 -------------
 A bit of hacked together code to read in ASCII STL files and then some routines to transform the faces based on an arbitrary function, it splits the facets if they're very distorted.
-for instance under the a mapping I was playing with that turns parrell lines into radial lines
+for instance under a stereographic projection that turns parallel lines into radial lines
 a cube
 
 ![cube](pics/cube.png?raw=true "cube")
