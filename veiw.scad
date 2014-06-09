@@ -1,3 +1,3 @@
-default_model = "./transformed.stl";
+default_model = "./out.stl";
 model = default_model;
 import(model);

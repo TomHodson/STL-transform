@@ -32,6 +32,12 @@ def gyroid(r):
   return sum(map(cos, r))
 def sphere(p,r):
   return mag(p) - r
+def cube(r, b, edgeround = 0.5):
+  r = Vector3(abs(r.x), abs(r.y), abs(r.z))
+  r -= b
+  return abs(Vector3(max(r.x,0), max(r.y,0), max(r.z,0)))-edgeround
+
+
 def cubisphere(p,r):
   return mag(p, e = 6.0) - r
 def oddsphere(p,r):
@@ -52,13 +58,43 @@ def orthocircle(r):
   bb = 3.0
   return ((x**2 + y**2 - 1)**2 + z**2)*((y**2 + z**2 - 1)**2 + x**2)*((z**2 + x**2 - 1)**2 + y**2) - ff**2*(1 + bb*(x**2 + y**2 + z**2)) 
 
-def func(x,y,z):
-  r = Vector3(x,y,z)
-  s = sphere(r, 5)
-  g = gyroid(r)
-  return orthocircle(r)
+def torus(r):
+  rad1 = 2
+  rad2 = 0.5
+  d = (r.x**2 + r.z**2)**0.5 - rad1
+  return (d**2 + r.y**2)**0.5 - rad2
+
+from transform import sphere_inverstion, sphere_reversion, spherical_projection, inverse_spherical_projection, oscillate
+def inversion(r): return inverse_spherical_projection(r, Vector3(1,0,0), Vector3(0,4,0), blend = 0.5)
+
+
+animate = True
 
 if __name__ == '__main__':
-  from subprocess import call
-  isosurface(func)
-  call(["openscad", "-o", "out.png","-D",  'model="out.stl";',"veiw.scad"])
+  if animate == True:
+    from subprocess import call
+    call(["openscad", "-o", "out.png","-D",  'model="out.stl";',"veiw.scad"])
+    stl_name = "torus"
+    directory = "pics/" + stl_name
+    call(["mkdir", directory])
+    call(["cd", directory])
+    files = []
+    steps = 40
+    time = 5.0
+    for i in range(steps):
+      j = oscillate(i/steps)
+      def func(x,y,z):
+        r = Vector3(x,y,z)
+        s = sphere(r, j)
+        g = gyroid(r)
+        t = torus(r - Vector3(0,0,2))
+        c = cube(r, Vector3(1,1,1))
+        return smin(s, t)
+      print i,"/",steps
+      f_name = "{directory}/solid {i}.stl".format(**locals())
+      files.append("{directory}/solid{i}.png".format(**locals()))
+      isosurface(func, size = 5.0, filename = f_name)
+      call(["openscad", "-o", "{directory}/solid{i}.png".format(**vars()),"-D",  'model="{directory}/solid {i}.stl";'.format(**vars()),"veiw.scad"])
+    call(["convert", "-delay", str(time/steps*100), "-loop", "0"] + files + ["{directory}/animation.gif".format(**vars())])   
+
+

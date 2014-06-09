@@ -82,12 +82,27 @@ def spherical_projection(r, n, t = Vector3(0,0,0), blend = 1.0):
 	mu = 0.0 if d == 0 else abs(d) / mag
 	new_r = r * mu
 	return (new_r * blend) + r * (1.0 - blend)
+def inverse_spherical_projection(r, n, t = Vector3(0,0,0), blend = 1.0):
+	"lines parrallel to n are mapped to radial lines through the origin"
+	d = r.dot(n)
+	mag = r.magnitude()
+	mu = 0 if d == 0 else abs(d) / mag
+	new_r = r / mu if mu != 0 else Vector3(float("inf")*3)
+	new_r -= t
+	return (new_r * blend) + r * (1.0 - blend)
 
-def sphere_inverstion(r,radius, t):
+def sphere_inverstion(r,radius,t= Vector3(0,0,0)):
 	r -= t
 	mag = r.magnitude()
 	if mag - radius == 0: return 0 * r
-	return r.normalized() / (mag)
+	return r.normalized() / (mag - radius)
+
+def sphere_reversion(r,radius,t= Vector3(0,0,0)):
+	mag = r.magnitude()
+	if mag - radius == 0: return 0 * r
+	r = r.normalized() * (mag - radius)
+	r -= t
+	return r
 
 def blend(f, t):
 	def _f(x):

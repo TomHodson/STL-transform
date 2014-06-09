@@ -47,7 +47,7 @@ def readdata_new(f=mag,size=5.0,steps=41.0):
   
 
 
-def isosurface(func,isolevel = 0.1,size = 9.0, sample_density = 41, filename = "out"):
+def isosurface(func,isolevel = 0.1,size = 9.0, sample_density = 41, filename = "out.stl"):
   
  data = readdata(func,size,sample_density)
   
@@ -88,7 +88,7 @@ def isosurface(func,isolevel = 0.1,size = 9.0, sample_density = 41, filename = "
  export_triangles(triangles, filename)  
   
 def export_triangles(triangles, filename): # stl format 
-  with open("{}.stl".format(filename), "w") as f:
+  with open(filename, "w") as f:
     f.write("solid points")  
     for tri in triangles:  
       f.write(str(tri))  
