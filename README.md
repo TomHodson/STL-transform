@@ -29,6 +29,7 @@ min(cube, sphere)
 smin(cube, sphere)
 
 ![The smooth union of a cube and a sphere](pics/7.png?raw=true "smooth_min(cube, sphere)")
+![The smooth union of a torus and a sphere](gifs/alien_heart_thing.gif?raw=true "smooth_min(cube, sphere)")
 
 Transform.py
 -------------
