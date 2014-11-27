@@ -121,6 +121,8 @@ def oscillate(t):
 
 def identity(r): return r
 if __name__ == '__main__':
+	import time.time as time
+	t = time()
 	from subprocess import call
 	stl_name = "torus"
 	stl = read_stl("stls/{}.stl".format(stl_name))
@@ -141,5 +143,5 @@ if __name__ == '__main__':
 		new_stl = stl.transformed(blend(inversion, j))
 		f.write(str(new_stl))
 		call(["openscad", "-o", "{directory}/solid{i}.png".format(**vars()),"-D",  'model="{directory}/solid {i}.stl";'.format(**vars()),"veiw.scad"])
-	call(["convert", "-delay", str(time/steps*100), "-loop", "0"] + files + ["{directory}/animation.gif".format(**vars())])		
-
+	#call(["convert", "-delay", str(time/steps*100), "-loop", "0"] + files + ["{directory}/animation.gif".format(**vars())])		
+	print time() - t
